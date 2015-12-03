@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 //        setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
         mListView = (ListView) findViewById(R.id.lv);
         ((ImageView) findViewById(R.id.icon_iv)).setImageBitmap(getRoundedCornerBitmap(createByContent("L")));
+        ((ImageView) findViewById(R.id.icon_iv_tmp)).setImageBitmap(createByContent("L"));
         ArrayList<Map<String, String>> listItem = new ArrayList<Map<String, String>>();/*在数组中存放数据*/
 
         for (int i = 0; i < 10; i++) {
@@ -276,8 +277,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private Bitmap createByContent(String s) {
-        Bitmap bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);//创建一个宽度和高度都是400、32位ARGB图
+    private static Bitmap createByContent(String s) {
+        Bitmap bitmap = Bitmap.createBitmap(150, 200, Bitmap.Config.ARGB_8888);//创建一个宽度和高度都是400、32位ARGB图
 
         Canvas canvas = new Canvas(bitmap);//初始化画布绘制的图像到icon上
 
@@ -293,7 +294,10 @@ public class MainActivity extends AppCompatActivity {
 
         paint.setTextAlign(Paint.Align.CENTER);
 
-        canvas.drawText(s, 80, 80, paint);//将文字写入。这里面的（120，130）代表着文字在图层上的初始位置
+        int xPos = (canvas.getWidth() / 2);
+        int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
+
+        canvas.drawText(s, xPos, yPos, paint);//将文字写入。这里面的（120，130）代表着文字在图层上的初始位置
 
         canvas.save(canvas.ALL_SAVE_FLAG);//保存所有图层
 
@@ -305,35 +309,42 @@ public class MainActivity extends AppCompatActivity {
 
     public static Bitmap getRoundedCornerBitmap(Bitmap bitmap) {
 
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        int x = 0;
+        int y = 0;
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+
+        if (w > h) {
+            x = (w - h) / 2;
+            y = 0;
+            w = h;
+            // h = h;
+        } else if (w < h) {
+            x = 0;
+            y = (h - w) / 2;
+            // w = w;
+            h = w;
+        } else {
+            // do nothing
+        }
+
+        Bitmap output = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final Paint paint = new Paint();
         //保证是方形，并且从中心画
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int w;
-        int deltaX = 0;
-        int deltaY = 0;
-        if (width <= height) {
-            w = width;
-            deltaY = height - w;
-        } else {
-            w = height;
-            deltaX = width - w;
-        }
-        final Rect rect = new Rect(deltaX, deltaY, w, w);
-        final RectF rectF = new RectF(rect);
+        final Rect rect = new Rect(x, y, x + w, y + h);
+        final RectF rectF = new RectF(0, 0, w, h);
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
         //圆形，所有只用一个
 
-        int radius = (int) (Math.sqrt(w * w * 2.0d) / 2);
+        int radius = w / 2;
         canvas.drawRoundRect(rectF, radius, radius, paint);
 
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
+        canvas.drawBitmap(bitmap, rect, rectF, paint);
         return output;
     }
 
