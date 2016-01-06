@@ -14,13 +14,16 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        setSupportActionBar((Toolbar) findViewById(R.id.tool_bar));
         mListView = (ListView) findViewById(R.id.lv);
-        ((ImageView) findViewById(R.id.icon_iv)).setImageBitmap(getRoundedCornerBitmap(createByContent("L")));
-        ((ImageView) findViewById(R.id.icon_iv_tmp)).setImageBitmap(createByContent("L"));
+        ((ImageView) findViewById(R.id.icon_iv)).setImageBitmap(getRoundedCornerBitmap(createTextBitmap("L", 50, 50, Color.GREEN, Color.RED, 10)));
+        ((ImageView) findViewById(R.id.icon_iv_tmp)).setImageBitmap(createTextBitmap("L", 50, 50, Color.GREEN, Color.RED, 10));
         ArrayList<Map<String, String>> listItem = new ArrayList<Map<String, String>>();/*在数组中存放数据*/
 
         for (int i = 0; i < 10; i++) {
@@ -137,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
             selectItem(0);
         }
 
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -157,8 +159,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.main, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -277,29 +279,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private static Bitmap createByContent(String s) {
-        Bitmap bitmap = Bitmap.createBitmap(150, 200, Bitmap.Config.ARGB_8888);//创建一个宽度和高度都是400、32位ARGB图
+    private static Bitmap createTextBitmap(@NonNull String text, int width, int height, int bgColor, int textColor, float textSize) {
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-        Canvas canvas = new Canvas(bitmap);//初始化画布绘制的图像到icon上
 
-        canvas.drawColor(Color.GREEN);//图层的背景色
+        Canvas canvas = new Canvas(bitmap);
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DEV_KERN_TEXT_FLAG);//创建画笔
+        canvas.drawColor(bgColor);
 
-        paint.setTextSize(50.0f);//设置文字的大小
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DEV_KERN_TEXT_FLAG);
 
-        paint.setTypeface(Typeface.DEFAULT_BOLD);//文字的样式(加粗)
+        paint.setTextSize(textSize);
 
-        paint.setColor(Color.GRAY);//文字的颜色
+        paint.setTypeface(Typeface.DEFAULT);
+
+        paint.setColor(textColor);
 
         paint.setTextAlign(Paint.Align.CENTER);
 
         int xPos = (canvas.getWidth() / 2);
         int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
 
-        canvas.drawText(s, xPos, yPos, paint);//将文字写入。这里面的（120，130）代表着文字在图层上的初始位置
+        canvas.drawText(text, xPos, yPos, paint);
 
-        canvas.save(canvas.ALL_SAVE_FLAG);//保存所有图层
+        canvas.save(canvas.ALL_SAVE_FLAG);
 
         canvas.restore();
 
@@ -332,13 +335,12 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(output);
 
         final Paint paint = new Paint();
-        //保证是方形，并且从中心画
+
         final Rect rect = new Rect(x, y, x + w, y + h);
         final RectF rectF = new RectF(0, 0, w, h);
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
-        //圆形，所有只用一个
 
         int radius = w / 2;
         canvas.drawRoundRect(rectF, radius, radius, paint);
@@ -347,7 +349,6 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawBitmap(bitmap, rect, rectF, paint);
         return output;
     }
-
 
 }
 

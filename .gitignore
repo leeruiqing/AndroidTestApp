@@ -28,3 +28,4 @@ proguard/
 .idea
 gradle
 AndroidTestApp.iml
+app.iml
